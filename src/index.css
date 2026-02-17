@@ -2,12 +2,14 @@
 
 :root {
   --bg-primary: #0A0A0F;
-  --bg-card: #12121A;
+  --bg-card: #111116;
   --bg-card-border: #1E1E2E;
-  --text-primary: #E8E8E8;
+  --text-primary: #E2E8F0;
+  --text-secondary: #64748B;
   --accent-green: #00FF85;
   --accent-red: #FF3B3B;
   --accent-blue: #3B82F6;
+  --accent-yellow: #FBBF24;
 }
 
 * {
@@ -22,6 +24,10 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 }
 
 /* Scrollbar */
@@ -41,4 +47,19 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #333;
+}
+
+/* Pulse animation for monitoring states */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Row stripe for tables */
+.table-row-stripe:nth-child(even) {
+  background-color: rgba(30, 30, 46, 0.2);
 }

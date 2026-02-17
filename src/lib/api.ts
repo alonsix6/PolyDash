@@ -3,7 +3,7 @@ import type {
   BasketWallet, ConsensusSignal, ChartPoint, HourlySignal
 } from './types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://localhost';
+const API_URL = import.meta.env.VITE_API_URL || window.location.origin;
 const API_KEY = import.meta.env.VITE_API_KEY || '';
 
 class ApiError extends Error {
