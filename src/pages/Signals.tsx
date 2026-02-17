@@ -1,9 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ArrowUp, ArrowDown, Clock, Radio, TrendingUp, TrendingDown, Zap, Award, ChevronLeft, ChevronRight, Filter, Download } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { ArrowUp, ArrowDown, Clock, Radio, TrendingUp, TrendingDown, Zap, Award, ChevronLeft, ChevronRight, Filter, Download, ChevronDown, ChevronUp, CheckCircle, XCircle } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Signal, SignalStats } from '../lib/types';
 
 const PAGE_SIZE = 20;
+
+type SortKey = 'timestamp' | 'score' | 'confidence' | 'btc_price' | 'delta_pct' | 'roi_pct' | 'pnl';
+type SortDir = 'asc' | 'desc';
 
 export function Signals() {
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -12,16 +15,22 @@ export function Signals() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [directionFilter, setDirectionFilter] = useState<'ALL' | 'UP' | 'DOWN'>('ALL');
+  const [resultFilter, setResultFilter] = useState<'ALL' | 'WIN' | 'LOSS'>('ALL');
+  const [sortKey, setSortKey] = useState<SortKey>('timestamp');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const params: { limit: number; offset: number; direction?: string } = {
+      const params: { limit: number; offset: number; direction?: string; result?: string } = {
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,
       };
       if (directionFilter !== 'ALL') {
         params.direction = directionFilter;
+      }
+      if (resultFilter !== 'ALL') {
+        params.result = resultFilter.toLowerCase();
       }
 
       const [signalsRes, statsData] = await Promise.all([
@@ -37,13 +46,41 @@ export function Signals() {
     } finally {
       setLoading(false);
     }
-  }, [page, directionFilter]);
+  }, [page, directionFilter, resultFilter]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDir('desc');
+    }
+  };
+
+  const sortedSignals = useMemo(() => {
+    const arr = [...signals];
+    arr.sort((a, b) => {
+      let aVal: number, bVal: number;
+      switch (sortKey) {
+        case 'timestamp': aVal = new Date(a.timestamp).getTime(); bVal = new Date(b.timestamp).getTime(); break;
+        case 'score': aVal = a.score; bVal = b.score; break;
+        case 'confidence': aVal = a.confidence; bVal = b.confidence; break;
+        case 'btc_price': aVal = a.btc_price; bVal = b.btc_price; break;
+        case 'delta_pct': aVal = a.delta_pct; bVal = b.delta_pct; break;
+        case 'roi_pct': aVal = a.pnl_theoretical?.roi_pct ?? 0; bVal = b.pnl_theoretical?.roi_pct ?? 0; break;
+        case 'pnl': aVal = a.pnl_theoretical?.net_profit ?? 0; bVal = b.pnl_theoretical?.net_profit ?? 0; break;
+        default: aVal = 0; bVal = 0;
+      }
+      return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+    return arr;
+  }, [signals, sortKey, sortDir]);
 
   const exportCSV = (data: Signal[]) => {
     if (data.length === 0) return;
@@ -80,6 +117,13 @@ export function Signals() {
     });
   };
 
+  const SortIcon = ({ column }: { column: SortKey }) => {
+    if (sortKey !== column) return <ChevronDown size={10} className="opacity-30 ml-0.5" />;
+    return sortDir === 'asc'
+      ? <ChevronUp size={10} className="ml-0.5" style={{ color: '#3B82F6' }} />
+      : <ChevronDown size={10} className="ml-0.5" style={{ color: '#3B82F6' }} />;
+  };
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -97,7 +141,7 @@ export function Signals() {
           iconColor="#FF3B3B"
         />
         <StatCard
-          title="Avg Score"
+          title="Avg PnL"
           value={stats ? `$${stats.avg_pnl.toFixed(2)}` : '--'}
           icon={Zap}
           iconColor="#3B82F6"
@@ -112,7 +156,7 @@ export function Signals() {
       </div>
 
       {/* Table Card */}
-      <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5">
+      <div className="glass-card border border-[#1E1E2E] rounded-xl p-5">
         {/* Header + Filters */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2.5">
@@ -123,8 +167,9 @@ export function Signals() {
             <span className="text-xs text-[#64748B] font-mono">{total} total</span>
           </div>
 
-          {/* Direction Filter + CSV Export */}
-          <div className="flex items-center gap-3">
+          {/* Filters + CSV Export */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Direction Filter */}
             <div className="flex items-center gap-1">
               <Filter size={14} className="text-[#64748B] mr-1" />
               {(['ALL', 'UP', 'DOWN'] as const).map((dir) => (
@@ -143,6 +188,30 @@ export function Signals() {
                 </button>
               ))}
             </div>
+
+            {/* Result Filter */}
+            <div className="h-4 w-px bg-[#1E1E2E]" />
+            <div className="flex items-center gap-1">
+              {(['ALL', 'WIN', 'LOSS'] as const).map((res) => (
+                <button
+                  key={res}
+                  onClick={() => { setPage(0); setResultFilter(res); }}
+                  className={`px-2.5 py-1 text-xs font-mono rounded-md transition-colors flex items-center gap-1 ${
+                    resultFilter === res
+                      ? res === 'WIN' ? 'bg-[#00FF85]/10 text-[#00FF85]'
+                        : res === 'LOSS' ? 'bg-[#FF3B3B]/10 text-[#FF3B3B]'
+                        : 'bg-[#1E1E2E] text-[#E2E8F0]'
+                      : 'text-[#64748B] hover:text-[#E2E8F0] hover:bg-[#1E1E2E]/50'
+                  }`}
+                >
+                  {res === 'WIN' && <CheckCircle size={10} />}
+                  {res === 'LOSS' && <XCircle size={10} />}
+                  {res}
+                </button>
+              ))}
+            </div>
+
+            <div className="h-4 w-px bg-[#1E1E2E]" />
             <button
               onClick={() => exportCSV(signals)}
               className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono text-[#64748B] hover:text-[#E2E8F0] hover:bg-[#1E1E2E]/50 rounded-md transition-colors"
@@ -156,36 +225,55 @@ export function Signals() {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px]">
+          <table className="w-full min-w-[800px]">
             <thead>
               <tr className="text-left text-[10px] text-[#64748B] uppercase tracking-wider border-b border-[#1E1E2E]">
-                <th className="pb-2.5 pl-2 font-medium">Time</th>
-                <th className="pb-2.5 font-medium">Direction</th>
-                <th className="pb-2.5 font-medium">Score</th>
-                <th className="pb-2.5 font-medium">Confidence</th>
-                <th className="pb-2.5 font-medium">BTC Price</th>
-                <th className="pb-2.5 font-medium">Delta</th>
-                <th className="pb-2.5 font-medium">ROI</th>
-                <th className="pb-2.5 pr-2 font-medium text-right">PnL</th>
+                <th className="pb-2.5 pl-2 font-medium cursor-pointer select-none hover:text-[#E2E8F0] transition-colors" onClick={() => handleSort('timestamp')}>
+                  <span className="inline-flex items-center">Time <SortIcon column="timestamp" /></span>
+                </th>
+                <th className="pb-2.5 font-medium">Dir</th>
+                <th className="pb-2.5 font-medium cursor-pointer select-none hover:text-[#E2E8F0] transition-colors" onClick={() => handleSort('score')}>
+                  <span className="inline-flex items-center">Score <SortIcon column="score" /></span>
+                </th>
+                <th className="pb-2.5 font-medium cursor-pointer select-none hover:text-[#E2E8F0] transition-colors" onClick={() => handleSort('confidence')}>
+                  <span className="inline-flex items-center">Conf. <SortIcon column="confidence" /></span>
+                </th>
+                <th className="pb-2.5 font-medium cursor-pointer select-none hover:text-[#E2E8F0] transition-colors" onClick={() => handleSort('btc_price')}>
+                  <span className="inline-flex items-center">BTC <SortIcon column="btc_price" /></span>
+                </th>
+                <th className="pb-2.5 font-medium cursor-pointer select-none hover:text-[#E2E8F0] transition-colors" onClick={() => handleSort('delta_pct')}>
+                  <span className="inline-flex items-center">Delta <SortIcon column="delta_pct" /></span>
+                </th>
+                <th className="pb-2.5 font-medium cursor-pointer select-none hover:text-[#E2E8F0] transition-colors" onClick={() => handleSort('roi_pct')}>
+                  <span className="inline-flex items-center">ROI <SortIcon column="roi_pct" /></span>
+                </th>
+                <th className="pb-2.5 font-medium text-center">Result</th>
+                <th className="pb-2.5 pr-2 font-medium text-right cursor-pointer select-none hover:text-[#E2E8F0] transition-colors" onClick={() => handleSort('pnl')}>
+                  <span className="inline-flex items-center justify-end">PnL <SortIcon column="pnl" /></span>
+                </th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 [...Array(PAGE_SIZE)].map((_, i) => (
                   <tr key={i}>
-                    <td colSpan={8} className="py-2.5">
+                    <td colSpan={9} className="py-2.5">
                       <div className="h-8 bg-[#1E1E2E]/50 rounded animate-pulse" />
                     </td>
                   </tr>
                 ))
-              ) : signals.length === 0 ? (
+              ) : sortedSignals.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-[#64748B] font-mono text-sm">
-                    No signals found
+                  <td colSpan={9} className="py-12 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Radio size={24} className="text-[#64748B]/50" />
+                      <span className="text-[#64748B] font-mono text-sm">No signals found</span>
+                      <span className="text-[10px] text-[#64748B]/60 font-mono">Try adjusting your filters</span>
+                    </div>
                   </td>
                 </tr>
               ) : (
-                signals.map((signal, idx) => {
+                sortedSignals.map((signal, idx) => {
                   const pnl = signal.pnl_theoretical?.net_profit ?? 0;
                   const won = signal.pnl_theoretical?.won ?? false;
                   const roi = signal.pnl_theoretical?.roi_pct ?? 0;
@@ -221,19 +309,25 @@ export function Signals() {
                         ${signal.btc_price?.toLocaleString() ?? '--'}
                       </td>
                       <td className="py-2.5 font-mono text-xs">
-                        <span className={signal.delta_pct >= 0 ? 'text-[#00FF85]' : 'text-[#FF3B3B]'}>
+                        <span style={{ color: signal.delta_pct >= 0 ? '#00FF85' : '#FF3B3B' }}>
                           {signal.delta_pct >= 0 ? '+' : ''}{signal.delta_pct.toFixed(2)}%
                         </span>
                       </td>
                       <td className="py-2.5 font-mono text-xs">
-                        <span className={roi >= 0 ? 'text-[#00FF85]' : 'text-[#FF3B3B]'}>
+                        <span style={{ color: roi >= 0 ? '#00FF85' : '#FF3B3B' }}>
                           {roi >= 0 ? '+' : ''}{roi.toFixed(2)}%
                         </span>
                       </td>
-                      <td className="py-2.5 pr-2 text-right">
-                        <span className={`font-mono text-xs font-bold ${
-                          won ? 'text-[#00FF85]' : 'text-[#FF3B3B]'
+                      <td className="py-2.5 text-center">
+                        <span className={`inline-flex items-center gap-0.5 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                          won ? 'bg-[#00FF85]/10 text-[#00FF85]' : 'bg-[#FF3B3B]/10 text-[#FF3B3B]'
                         }`}>
+                          {won ? <CheckCircle size={9} /> : <XCircle size={9} />}
+                          {won ? 'WIN' : 'LOSS'}
+                        </span>
+                      </td>
+                      <td className="py-2.5 pr-2 text-right">
+                        <span className="font-mono text-xs font-bold" style={{ color: won ? '#00FF85' : '#FF3B3B' }}>
                           {won ? '+' : ''}{pnl !== 0 ? `$${pnl.toFixed(2)}` : '$0.00'}
                         </span>
                       </td>
@@ -259,6 +353,31 @@ export function Signals() {
               >
                 <ChevronLeft size={16} />
               </button>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 5) {
+                  pageNum = i;
+                } else if (page < 3) {
+                  pageNum = i;
+                } else if (page > totalPages - 4) {
+                  pageNum = totalPages - 5 + i;
+                } else {
+                  pageNum = page - 2 + i;
+                }
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`w-7 h-7 text-xs font-mono rounded-md transition-colors ${
+                      page === pageNum
+                        ? 'bg-[#1E1E2E] text-[#E2E8F0]'
+                        : 'text-[#64748B] hover:text-[#E2E8F0] hover:bg-[#1E1E2E]/50'
+                    }`}
+                  >
+                    {pageNum + 1}
+                  </button>
+                );
+              })}
               <button
                 onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
                 disabled={page >= totalPages - 1}
@@ -282,11 +401,11 @@ function StatCard({ title, value, subtitle, icon: Icon, iconColor }: {
   iconColor: string;
 }) {
   return (
-    <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-4 relative overflow-hidden hover:border-[#2a2a3e] transition-colors duration-200">
+    <div className="glass-card border border-[#1E1E2E] rounded-xl p-4 relative overflow-hidden group hover:border-[#2a2a3e] transition-all duration-300">
       <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${iconColor}40, transparent)` }} />
       <div className="flex items-start justify-between mb-2">
         <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-wider">{title}</span>
-        <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${iconColor}10`, color: iconColor }}>
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${iconColor}10`, color: iconColor }}>
           <Icon size={14} />
         </div>
       </div>

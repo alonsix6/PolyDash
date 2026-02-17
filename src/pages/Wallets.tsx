@@ -40,12 +40,22 @@ export function Wallets() {
     }
   };
 
+  const totalWalletCount = Math.max(wallets.length, 3);
+
   if (loading) {
     return (
       <div className="space-y-6">
+        <div className="glass-card border border-[#1E1E2E] rounded-xl p-5 animate-pulse">
+          <div className="h-6 bg-[#1E1E2E] rounded w-40 mb-4" />
+          <div className="flex gap-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-16 w-36 bg-[#1E1E2E]/50 rounded-lg flex-shrink-0" />
+            ))}
+          </div>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5 animate-pulse">
+            <div key={i} className="glass-card border border-[#1E1E2E] rounded-xl p-5 animate-pulse">
               <div className="h-6 bg-[#1E1E2E] rounded w-32 mb-4" />
               <div className="h-4 bg-[#1E1E2E] rounded w-48 mb-3" />
               <div className="space-y-2">
@@ -61,8 +71,9 @@ export function Wallets() {
 
   if (wallets.length === 0) {
     return (
-      <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-12 flex flex-col items-center justify-center gap-3">
-        <Loader size={24} className="text-[#64748B] animate-spin" />
+      <div className="glass-card border border-[#1E1E2E] rounded-xl p-12 flex flex-col items-center justify-center gap-3">
+        <Wallet size={32} className="text-[#64748B]/40" />
+        <Loader size={20} className="text-[#64748B] animate-spin" />
         <span className="text-sm font-mono text-[#64748B] animate-pulse-glow">Monitoring wallets...</span>
         <span className="text-xs text-[#64748B]">No wallet activity detected yet</span>
       </div>
@@ -72,7 +83,7 @@ export function Wallets() {
   return (
     <div className="space-y-6">
       {/* Consensus History Card */}
-      <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5">
+      <div className="glass-card border border-[#1E1E2E] rounded-xl p-5">
         <div className="flex items-center gap-2.5 mb-4">
           <div className="w-8 h-8 rounded-lg bg-[#FBBF24]/10 flex items-center justify-center">
             <Users size={16} className="text-[#FBBF24]" />
@@ -84,37 +95,54 @@ export function Wallets() {
         {consensus.length > 0 ? (
           <div className="overflow-x-auto">
             <div className="flex gap-2 pb-2">
-              {consensus.slice(0, 20).map((c, idx) => (
-                <div key={idx} className="flex-shrink-0 p-2.5 rounded-lg bg-[#0A0A0F] border border-[#1E1E2E] min-w-[140px]">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    {c.direction === 'UP' ? (
-                      <ArrowUp size={12} className="text-[#00FF85]" />
-                    ) : (
-                      <ArrowDown size={12} className="text-[#FF3B3B]" />
+              {consensus.slice(0, 20).map((c, idx) => {
+                const isHighConsensus = c.wallets >= 2;
+                return (
+                  <div
+                    key={idx}
+                    className={`flex-shrink-0 p-2.5 rounded-lg bg-[#0A0A0F] border min-w-[140px] transition-all duration-300 ${
+                      isHighConsensus ? 'border-[#00FF85]/30' : 'border-[#1E1E2E]'
+                    }`}
+                    style={isHighConsensus ? { boxShadow: '0 0 8px rgba(0, 255, 133, 0.1)' } : undefined}
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      {c.direction === 'UP' ? (
+                        <ArrowUp size={12} className="text-[#00FF85]" />
+                      ) : (
+                        <ArrowDown size={12} className="text-[#FF3B3B]" />
+                      )}
+                      <span className="text-xs font-mono font-bold" style={{ color: c.direction === 'UP' ? '#00FF85' : '#FF3B3B' }}>
+                        {c.direction}
+                      </span>
+                      <span className="text-[10px] font-mono ml-auto" style={{ color: isHighConsensus ? '#00FF85' : '#64748B' }}>
+                        {c.wallets}/{totalWalletCount}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-[#64748B] font-mono">
+                      {new Date(c.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+                    </div>
+                    {isHighConsensus && (
+                      <div className="mt-1 text-[8px] font-mono font-bold text-[#00FF85]/70 uppercase tracking-wider">
+                        consensus
+                      </div>
                     )}
-                    <span className={`text-xs font-mono font-bold ${
-                      c.direction === 'UP' ? 'text-[#00FF85]' : 'text-[#FF3B3B]'
-                    }`}>
-                      {c.direction}
-                    </span>
-                    <span className="text-[10px] text-[#64748B] font-mono ml-auto">{c.wallets}/{wallets.length || 3}</span>
                   </div>
-                  <div className="text-[10px] text-[#64748B] font-mono">
-                    {new Date(c.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ) : (
-          <div className="text-center py-4 text-[#64748B] font-mono text-xs">No consensus events</div>
+          <div className="flex flex-col items-center py-6 gap-2">
+            <Users size={20} className="text-[#64748B]/40" />
+            <span className="text-xs text-[#64748B] font-mono">No consensus events yet</span>
+          </div>
         )}
       </div>
 
       {/* Wallet Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {wallets.map((wallet, idx) => (
-          <div key={idx} className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5 hover:border-[#2a2a3e] transition-colors duration-200">
+          <div key={idx} className="glass-card border border-[#1E1E2E] rounded-xl p-5 hover:border-[#2a2a3e] transition-all duration-300 card-hover-lift">
             {/* Wallet Header */}
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
@@ -182,7 +210,7 @@ export function Wallets() {
       </div>
 
       {/* Discovery Panel */}
-      <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5">
+      <div className="glass-card border border-[#1E1E2E] rounded-xl p-5">
         <div className="flex items-center gap-2.5 mb-4">
           <div className="w-8 h-8 rounded-lg bg-[#00FF85]/10 flex items-center justify-center">
             <Search size={16} className="text-[#00FF85]" />

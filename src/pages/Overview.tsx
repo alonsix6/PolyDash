@@ -39,7 +39,7 @@ export function Overview() {
   return (
     <div className="space-y-6">
       {/* Row 1: KPI Cards */}
-      <KPIGrid data={kpis} loading={loading} />
+      <KPIGrid data={kpis} loading={loading} chartData={chartData} />
 
       {/* Row 2: PnL Chart - Full Width */}
       <PnLChart data={chartData} loading={loading} />
