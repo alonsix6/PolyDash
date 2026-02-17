@@ -77,7 +77,7 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0F]/95 backdrop-blur-md border-b border-[#1E1E2E]">
-      <div className="px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div className="px-5 sm:px-8 lg:px-12 xl:px-16 h-14 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-[#00FF85]/10 flex items-center justify-center">

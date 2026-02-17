@@ -41,8 +41,8 @@ export function WalletConsensus() {
 
   if (loading) {
     return (
-      <div className="glass-card border border-[#1E1E2E] rounded-xl p-5">
-        <div className="flex items-center gap-2.5 mb-4">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+        <div className="flex items-center gap-2.5 mb-5">
           <div className="w-8 h-8 bg-[#1E1E2E] rounded-lg" />
           <div className="h-5 bg-[#1E1E2E] rounded w-36" />
         </div>
@@ -58,9 +58,9 @@ export function WalletConsensus() {
   const hasConsensus = consensusLevel >= 2;
 
   return (
-    <div className={`glass-card border rounded-xl p-5 transition-all duration-500 ${hasConsensus ? 'animate-consensus-glow' : 'border-[#1E1E2E]'}`}>
+    <div className={`glass-card border rounded-lg p-6 transition-all duration-500 ${hasConsensus ? 'animate-consensus-glow' : 'border-[#1E1E2E]'}`}>
       {/* Header */}
-      <div className="flex items-center gap-2.5 mb-4">
+      <div className="flex items-center gap-2.5 mb-5">
         <div className="w-8 h-8 rounded-lg bg-[#FBBF24]/10 flex items-center justify-center">
           <Users size={16} className="text-[#FBBF24]" />
         </div>
