@@ -26,7 +26,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
       <Header currentPage={currentPage} onNavigate={setCurrentPage} />
-      <main className="pt-18 pb-8 px-4 max-w-[1440px] mx-auto">
+      <main style={{ paddingTop: '80px' }} className="pb-8 px-4 md:px-6 lg:px-8">
         {renderPage()}
       </main>
     </div>
