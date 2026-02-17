@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowUp, ArrowDown, Clock, Radio, TrendingUp, TrendingDown, Zap, Award, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { ArrowUp, ArrowDown, Clock, Radio, TrendingUp, TrendingDown, Zap, Award, ChevronLeft, ChevronRight, Filter, Download } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Signal, SignalStats } from '../lib/types';
 
@@ -45,6 +45,30 @@ export function Signals() {
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
+  const exportCSV = (data: Signal[]) => {
+    if (data.length === 0) return;
+    const header = 'Timestamp,Direction,Score,Confidence,BTC Price,Delta %,ROI %,PnL,Won';
+    const rows = data.map(s => [
+      s.timestamp,
+      s.direction ?? '',
+      s.score.toFixed(3),
+      (s.confidence * 100).toFixed(0),
+      s.btc_price,
+      s.delta_pct.toFixed(2),
+      (s.pnl_theoretical?.roi_pct ?? 0).toFixed(2),
+      (s.pnl_theoretical?.net_profit ?? 0).toFixed(2),
+      s.pnl_theoretical?.won ? 'YES' : 'NO',
+    ].join(','));
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `polydash-signals-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleString('en-US', {
       month: 'short',
@@ -57,7 +81,7 @@ export function Signals() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
@@ -99,24 +123,34 @@ export function Signals() {
             <span className="text-xs text-[#64748B] font-mono">{total} total</span>
           </div>
 
-          {/* Direction Filter */}
-          <div className="flex items-center gap-1">
-            <Filter size={14} className="text-[#64748B] mr-1" />
-            {(['ALL', 'UP', 'DOWN'] as const).map((dir) => (
-              <button
-                key={dir}
-                onClick={() => { setPage(0); setDirectionFilter(dir); }}
-                className={`px-2.5 py-1 text-xs font-mono rounded-md transition-colors ${
-                  directionFilter === dir
-                    ? dir === 'UP' ? 'bg-[#00FF85]/10 text-[#00FF85]'
-                      : dir === 'DOWN' ? 'bg-[#FF3B3B]/10 text-[#FF3B3B]'
-                      : 'bg-[#1E1E2E] text-[#E2E8F0]'
-                    : 'text-[#64748B] hover:text-[#E2E8F0] hover:bg-[#1E1E2E]/50'
-                }`}
-              >
-                {dir}
-              </button>
-            ))}
+          {/* Direction Filter + CSV Export */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <Filter size={14} className="text-[#64748B] mr-1" />
+              {(['ALL', 'UP', 'DOWN'] as const).map((dir) => (
+                <button
+                  key={dir}
+                  onClick={() => { setPage(0); setDirectionFilter(dir); }}
+                  className={`px-2.5 py-1 text-xs font-mono rounded-md transition-colors ${
+                    directionFilter === dir
+                      ? dir === 'UP' ? 'bg-[#00FF85]/10 text-[#00FF85]'
+                        : dir === 'DOWN' ? 'bg-[#FF3B3B]/10 text-[#FF3B3B]'
+                        : 'bg-[#1E1E2E] text-[#E2E8F0]'
+                      : 'text-[#64748B] hover:text-[#E2E8F0] hover:bg-[#1E1E2E]/50'
+                  }`}
+                >
+                  {dir}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => exportCSV(signals)}
+              className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono text-[#64748B] hover:text-[#E2E8F0] hover:bg-[#1E1E2E]/50 rounded-md transition-colors"
+              title="Export CSV"
+            >
+              <Download size={12} />
+              CSV
+            </button>
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Wallet, Copy, Check, ArrowUp, ArrowDown, Clock, Users, Loader } from 'lucide-react';
+import { Wallet, Copy, Check, ArrowUp, ArrowDown, Clock, Users, Loader, Search } from 'lucide-react';
 import { api } from '../lib/api';
 import type { BasketWallet, ConsensusSignal } from '../lib/types';
 
@@ -42,7 +42,7 @@ export function Wallets() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5 animate-pulse">
@@ -70,7 +70,7 @@ export function Wallets() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Consensus History Card */}
       <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5">
         <div className="flex items-center gap-2.5 mb-4">
@@ -179,6 +179,34 @@ export function Wallets() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Discovery Panel */}
+      <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5">
+        <div className="flex items-center gap-2.5 mb-4">
+          <div className="w-8 h-8 rounded-lg bg-[#00FF85]/10 flex items-center justify-center">
+            <Search size={16} className="text-[#00FF85]" />
+          </div>
+          <div>
+            <h3 className="text-sm font-mono font-semibold text-[#E2E8F0]">Wallet Discovery</h3>
+            <p className="text-[10px] text-[#64748B]">Add new wallets to monitor</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Enter wallet address (0x...)"
+            className="flex-1 bg-[#0A0A0F] border border-[#1E1E2E] rounded-lg px-3 py-2 text-xs font-mono text-[#E2E8F0] placeholder:text-[#64748B]/50 focus:outline-none focus:border-[#3B82F6]/50 transition-colors"
+            disabled
+          />
+          <button
+            disabled
+            className="px-4 py-2 bg-[#1E1E2E] text-xs font-mono text-[#64748B] rounded-lg cursor-not-allowed"
+          >
+            Add
+          </button>
+        </div>
+        <p className="text-[10px] text-[#64748B] mt-2 font-mono">Coming soon - wallet discovery requires backend support</p>
       </div>
     </div>
   );

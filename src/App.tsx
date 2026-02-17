@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { Header } from './components/Header';
+import { PageTransition } from './components/PageTransition';
 import { Overview } from './pages/Overview';
 import { Signals } from './pages/Signals';
 import { Wallets } from './pages/Wallets';
@@ -26,8 +28,12 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
       <Header currentPage={currentPage} onNavigate={setCurrentPage} />
-      <main style={{ paddingTop: '80px' }} className="pb-8 px-4 md:px-6 lg:px-8">
-        {renderPage()}
+      <main style={{ paddingTop: '80px' }} className="pb-8 px-6 lg:px-8">
+        <AnimatePresence mode="wait">
+          <PageTransition pageKey={currentPage}>
+            {renderPage()}
+          </PageTransition>
+        </AnimatePresence>
       </main>
     </div>
   );

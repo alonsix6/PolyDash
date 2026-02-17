@@ -1,0 +1,16 @@
+{
+  "name": "PolyDash - Trading Dashboard",
+  "short_name": "PolyDash",
+  "description": "Professional trading dashboard for Polymarket bot monitoring",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0F",
+  "theme_color": "#00FF85",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
