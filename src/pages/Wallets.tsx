@@ -44,19 +44,19 @@ export function Wallets() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="glass-card border border-[#1E1E2E] rounded-xl p-5 animate-pulse">
-          <div className="h-6 bg-[#1E1E2E] rounded w-40 mb-4" />
+      <div className="space-y-6 lg:space-y-8">
+        <div className="glass-card border border-[#1E1E2E] rounded-lg p-6 animate-pulse">
+          <div className="h-6 bg-[#1E1E2E] rounded w-40 mb-5" />
           <div className="flex gap-2">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="h-16 w-36 bg-[#1E1E2E]/50 rounded-lg flex-shrink-0" />
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="glass-card border border-[#1E1E2E] rounded-xl p-5 animate-pulse">
-              <div className="h-6 bg-[#1E1E2E] rounded w-32 mb-4" />
+            <div key={i} className="glass-card border border-[#1E1E2E] rounded-lg p-6 animate-pulse">
+              <div className="h-6 bg-[#1E1E2E] rounded w-32 mb-5" />
               <div className="h-4 bg-[#1E1E2E] rounded w-48 mb-3" />
               <div className="space-y-2">
                 <div className="h-10 bg-[#1E1E2E]/50 rounded" />
@@ -71,7 +71,7 @@ export function Wallets() {
 
   if (wallets.length === 0) {
     return (
-      <div className="glass-card border border-[#1E1E2E] rounded-xl p-12 flex flex-col items-center justify-center gap-3">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg p-12 flex flex-col items-center justify-center gap-3">
         <Wallet size={32} className="text-[#64748B]/40" />
         <Loader size={20} className="text-[#64748B] animate-spin" />
         <span className="text-sm font-mono text-[#64748B] animate-pulse-glow">Monitoring wallets...</span>
@@ -81,10 +81,10 @@ export function Wallets() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       {/* Consensus History Card */}
-      <div className="glass-card border border-[#1E1E2E] rounded-xl p-5">
-        <div className="flex items-center gap-2.5 mb-4">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+        <div className="flex items-center gap-2.5 mb-5">
           <div className="w-8 h-8 rounded-lg bg-[#FBBF24]/10 flex items-center justify-center">
             <Users size={16} className="text-[#FBBF24]" />
           </div>
@@ -140,9 +140,9 @@ export function Wallets() {
       </div>
 
       {/* Wallet Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {wallets.map((wallet, idx) => (
-          <div key={idx} className="glass-card border border-[#1E1E2E] rounded-xl p-5 hover:border-[#2a2a3e] transition-all duration-300 card-hover-lift">
+          <div key={idx} className="glass-card border border-[#1E1E2E] rounded-lg p-6 hover:border-[#2a2a3e] transition-all duration-300 card-hover-lift">
             {/* Wallet Header */}
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
@@ -210,8 +210,8 @@ export function Wallets() {
       </div>
 
       {/* Discovery Panel */}
-      <div className="glass-card border border-[#1E1E2E] rounded-xl p-5">
-        <div className="flex items-center gap-2.5 mb-4">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+        <div className="flex items-center gap-2.5 mb-5">
           <div className="w-8 h-8 rounded-lg bg-[#00FF85]/10 flex items-center justify-center">
             <Search size={16} className="text-[#00FF85]" />
           </div>
