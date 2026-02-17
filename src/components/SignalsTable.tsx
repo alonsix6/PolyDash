@@ -9,7 +9,7 @@ interface SignalsTableProps {
 export function SignalsTable({ signals, loading }: SignalsTableProps) {
   if (loading) {
     return (
-      <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5">
+      <div className="glass-card border border-[#1E1E2E] rounded-xl p-5">
         <div className="flex items-center gap-2.5 mb-4">
           <div className="w-8 h-8 bg-[#1E1E2E] rounded-lg" />
           <div className="h-5 bg-[#1E1E2E] rounded w-32" />
@@ -25,15 +25,17 @@ export function SignalsTable({ signals, loading }: SignalsTableProps) {
 
   if (!signals || signals.length === 0) {
     return (
-      <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5">
+      <div className="glass-card border border-[#1E1E2E] rounded-xl p-5">
         <div className="flex items-center gap-2.5 mb-4">
           <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
             <Radio size={16} className="text-[#3B82F6]" />
           </div>
           <h3 className="text-sm font-mono font-semibold text-[#E2E8F0]">Recent Signals</h3>
         </div>
-        <div className="text-center py-8 text-[#64748B] font-mono text-sm">
-          No signals yet
+        <div className="flex flex-col items-center py-8 gap-2">
+          <Radio size={20} className="text-[#64748B]/40" />
+          <span className="text-[#64748B] font-mono text-sm">No signals yet</span>
+          <span className="text-[10px] text-[#64748B]/60 font-mono">Signals will appear here as they are generated</span>
         </div>
       </div>
     );
@@ -51,7 +53,7 @@ export function SignalsTable({ signals, loading }: SignalsTableProps) {
   const displaySignals = signals.slice(-20).reverse();
 
   return (
-    <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5 flex flex-col">
+    <div className="glass-card border border-[#1E1E2E] rounded-xl p-5 flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-4">
         <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
@@ -112,11 +114,16 @@ export function SignalsTable({ signals, loading }: SignalsTableProps) {
                     </span>
                   </td>
                   <td className="py-2.5 pr-2 text-right">
-                    <span className={`font-mono text-xs font-bold ${
-                      won ? 'text-[#00FF85]' : 'text-[#FF3B3B]'
-                    }`}>
-                      {won ? '+' : ''}{pnl !== 0 ? `$${pnl.toFixed(2)}` : '$0.00'}
-                    </span>
+                    <div className="flex items-center justify-end gap-1.5">
+                      <span className={`inline-flex items-center text-[9px] font-mono font-bold px-1 py-0.5 rounded ${
+                        won ? 'bg-[#00FF85]/10 text-[#00FF85]' : 'bg-[#FF3B3B]/10 text-[#FF3B3B]'
+                      }`}>
+                        {won ? 'W' : 'L'}
+                      </span>
+                      <span className="font-mono text-xs font-bold" style={{ color: won ? '#00FF85' : '#FF3B3B' }}>
+                        {won ? '+' : ''}{pnl !== 0 ? `$${pnl.toFixed(2)}` : '$0.00'}
+                      </span>
+                    </div>
                   </td>
                 </tr>
               );

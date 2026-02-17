@@ -64,7 +64,7 @@ export function SignalDistribution({ signals, loading }: SignalDistributionProps
 
   if (loading) {
     return (
-      <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5">
+      <div className="glass-card border border-[#1E1E2E] rounded-xl p-5">
         <div className="flex items-center gap-2.5 mb-4">
           <div className="w-8 h-8 bg-[#1E1E2E] rounded-lg" />
           <div className="h-5 bg-[#1E1E2E] rounded w-40" />
@@ -75,7 +75,7 @@ export function SignalDistribution({ signals, loading }: SignalDistributionProps
   }
 
   return (
-    <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5 flex flex-col">
+    <div className="glass-card border border-[#1E1E2E] rounded-xl p-5 flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-4">
         <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
