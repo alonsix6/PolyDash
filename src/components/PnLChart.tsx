@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { TrendingUp } from 'lucide-react';
 import type { ChartPoint } from '../lib/types';
@@ -12,6 +13,15 @@ interface TooltipProps {
   payload?: Array<{ value: number }>;
   label?: string;
 }
+
+const TIME_RANGES = [
+  { label: '1H', hours: 1 },
+  { label: '6H', hours: 6 },
+  { label: '24H', hours: 24 },
+  { label: '48H', hours: 48 },
+  { label: '7D', hours: 168 },
+  { label: 'ALL', hours: 0 },
+] as const;
 
 function CustomTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload || !payload.length) return null;
@@ -30,6 +40,16 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
 }
 
 export function PnLChart({ data, loading }: PnLChartProps) {
+  const [rangeHours, setRangeHours] = useState(0); // 0 = ALL
+
+  const filteredData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+    if (rangeHours === 0) return data;
+
+    const cutoff = Date.now() - rangeHours * 60 * 60 * 1000;
+    return data.filter(p => new Date(p.timestamp).getTime() >= cutoff);
+  }, [data, rangeHours]);
+
   if (loading) {
     return (
       <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5 h-80 animate-pulse">
@@ -50,7 +70,7 @@ export function PnLChart({ data, loading }: PnLChartProps) {
     );
   }
 
-  const chartData = data.map((point) => ({
+  const chartData = filteredData.map((point) => ({
     ...point,
     time: new Date(point.timestamp).toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -59,14 +79,16 @@ export function PnLChart({ data, loading }: PnLChartProps) {
     }),
   }));
 
-  const lastValue = data[data.length - 1]?.pnl_cumulative ?? 0;
+  const lastValue = filteredData[filteredData.length - 1]?.pnl_cumulative ?? 0;
+  const firstValue = filteredData[0]?.pnl_cumulative ?? 0;
+  const periodChange = lastValue - firstValue;
   const isPositive = lastValue >= 0;
   const color = isPositive ? '#00FF85' : '#FF3B3B';
 
   return (
     <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5 relative overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
             <TrendingUp size={16} className="text-[#3B82F6]" />
@@ -74,9 +96,31 @@ export function PnLChart({ data, loading }: PnLChartProps) {
           <div>
             <h3 className="text-sm font-mono font-semibold text-[#E2E8F0]">Cumulative PnL</h3>
           </div>
+          <div className={`text-lg font-mono font-bold ${isPositive ? 'text-[#00FF85]' : 'text-[#FF3B3B]'}`}>
+            {isPositive ? '+' : ''}${lastValue.toFixed(2)}
+          </div>
+          {rangeHours > 0 && (
+            <span className={`text-xs font-mono ${periodChange >= 0 ? 'text-[#00FF85]' : 'text-[#FF3B3B]'}`}>
+              ({periodChange >= 0 ? '+' : ''}{periodChange.toFixed(2)})
+            </span>
+          )}
         </div>
-        <div className={`text-lg font-mono font-bold ${isPositive ? 'text-[#00FF85]' : 'text-[#FF3B3B]'}`}>
-          {isPositive ? '+' : ''}${lastValue.toFixed(2)}
+
+        {/* Time range selector */}
+        <div className="flex items-center gap-0.5 bg-[#0A0A0F] rounded-lg p-0.5 border border-[#1E1E2E]">
+          {TIME_RANGES.map((range) => (
+            <button
+              key={range.label}
+              onClick={() => setRangeHours(range.hours)}
+              className={`px-2.5 py-1 text-[10px] font-mono font-medium rounded-md transition-colors ${
+                rangeHours === range.hours
+                  ? 'bg-[#1E1E2E] text-[#E2E8F0]'
+                  : 'text-[#64748B] hover:text-[#E2E8F0]'
+              }`}
+            >
+              {range.label}
+            </button>
+          ))}
         </div>
       </div>
 

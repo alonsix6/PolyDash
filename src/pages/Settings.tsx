@@ -33,7 +33,7 @@ export function Settings() {
   };
 
   return (
-    <div className="space-y-4 max-w-3xl">
+    <div className="space-y-6 max-w-3xl">
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-2">
         <div className="w-9 h-9 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
