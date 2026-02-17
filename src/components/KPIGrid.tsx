@@ -26,7 +26,7 @@ function KPICard({ title, value, subtitle, icon: Icon, iconColor, valueColor, sp
   const gradientId = `spark-${title.replace(/\s+/g, '-')}`;
 
   return (
-    <div className="glass-card border border-[#1E1E2E] rounded-lg p-5 lg:p-6 relative overflow-hidden group hover:border-[#2a2a3e] transition-all duration-300">
+    <div className="glass-card border border-[#1E1E2E] rounded-lg relative overflow-hidden group hover:border-[#2a2a3e] transition-all duration-300" style={{ padding: '24px' }}>
       {/* Top accent line */}
       <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${iconColor}40, transparent)` }} />
 
@@ -118,9 +118,9 @@ export function KPIGrid({ data, loading, chartData }: KPIsProps) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: '16px' }}>
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="glass-card border border-[#1E1E2E] rounded-lg p-5 lg:p-6 animate-pulse">
+          <div key={i} className="glass-card border border-[#1E1E2E] rounded-lg animate-pulse" style={{ padding: '24px' }}>
             <div className="flex items-start justify-between mb-3">
               <div className="h-3 bg-[#1E1E2E] rounded w-16" />
               <div className="w-8 h-8 bg-[#1E1E2E] rounded-lg" />
@@ -142,7 +142,7 @@ export function KPIGrid({ data, loading, chartData }: KPIsProps) {
   const drawdownSeverity: 'low' | 'mid' | 'high' = drawdownRatio > 0.75 ? 'high' : drawdownRatio > 0.35 ? 'mid' : 'low';
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: '16px' }}>
       <KPICard
         title="Total Signals"
         value={data.total_signals.toLocaleString()}

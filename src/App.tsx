@@ -28,7 +28,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
       <Header currentPage={currentPage} onNavigate={setCurrentPage} />
-      <main style={{ paddingTop: '80px' }} className="pb-12 px-5 sm:px-8 lg:px-12 xl:px-16">
+      <main style={{ paddingTop: '80px', paddingLeft: 'clamp(20px, 4vw, 80px)', paddingRight: 'clamp(20px, 4vw, 80px)', paddingBottom: '48px', maxWidth: '1600px', marginLeft: 'auto', marginRight: 'auto' }}>
         <AnimatePresence mode="wait">
           <PageTransition pageKey={currentPage}>
             {renderPage()}
