@@ -125,9 +125,9 @@ export function Signals() {
   };
 
   return (
-    <div className="space-y-6 lg:space-y-8">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: '16px' }}>
         <StatCard
           title="Win Rate UP"
           value={stats ? `${stats.win_rate_up.toFixed(1)}%` : '--'}
@@ -156,7 +156,7 @@ export function Signals() {
       </div>
 
       {/* Table Card */}
-      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg" style={{ padding: '24px' }}>
         {/* Header + Filters */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-2.5">
@@ -401,7 +401,7 @@ function StatCard({ title, value, subtitle, icon: Icon, iconColor }: {
   iconColor: string;
 }) {
   return (
-    <div className="glass-card border border-[#1E1E2E] rounded-lg p-5 relative overflow-hidden group hover:border-[#2a2a3e] transition-all duration-300">
+    <div className="glass-card border border-[#1E1E2E] rounded-lg relative overflow-hidden group hover:border-[#2a2a3e] transition-all duration-300" style={{ padding: '24px' }}>
       <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${iconColor}40, transparent)` }} />
       <div className="flex items-start justify-between mb-2">
         <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-wider">{title}</span>

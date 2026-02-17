@@ -37,7 +37,7 @@ export function Overview() {
   }, []);
 
   return (
-    <div className="space-y-6 lg:space-y-8">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* Row 1: KPI Cards */}
       <KPIGrid data={kpis} loading={loading} chartData={chartData} />
 
@@ -45,7 +45,7 @@ export function Overview() {
       <PnLChart data={chartData} loading={loading} />
 
       {/* Row 3: Signals Table (60%) + Signal Distribution (40%) */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 lg:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5" style={{ gap: '24px' }}>
         <div className="lg:col-span-3">
           <SignalsTable signals={signals} loading={loading} />
         </div>

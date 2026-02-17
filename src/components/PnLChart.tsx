@@ -52,7 +52,7 @@ export function PnLChart({ data, loading }: PnLChartProps) {
 
   if (loading) {
     return (
-      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6 h-80 animate-pulse">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg h-80 animate-pulse" style={{ padding: '24px' }}>
         <div className="flex items-center gap-2 mb-4">
           <div className="w-8 h-8 bg-[#1E1E2E] rounded-lg" />
           <div className="h-5 bg-[#1E1E2E] rounded w-36" />
@@ -64,7 +64,7 @@ export function PnLChart({ data, loading }: PnLChartProps) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6 h-80 flex flex-col items-center justify-center gap-2">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg h-80 flex flex-col items-center justify-center gap-2" style={{ padding: '24px' }}>
         <TrendingUp size={24} className="text-[#64748B]/40" />
         <span className="text-[#64748B] font-mono text-sm">No chart data available</span>
         <span className="text-[10px] text-[#64748B]/60 font-mono">PnL data will appear after signals are processed</span>
@@ -88,7 +88,7 @@ export function PnLChart({ data, loading }: PnLChartProps) {
   const color = isPositive ? '#00FF85' : '#FF3B3B';
 
   return (
-    <div className="glass-card border border-[#1E1E2E] rounded-lg p-6 relative overflow-hidden">
+    <div className="glass-card border border-[#1E1E2E] rounded-lg relative overflow-hidden" style={{ padding: '24px' }}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2.5">

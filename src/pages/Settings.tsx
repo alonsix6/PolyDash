@@ -73,7 +73,7 @@ export function Settings() {
   };
 
   return (
-    <div className="space-y-6 lg:space-y-8 max-w-3xl">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', maxWidth: '768px' }}>
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-2">
         <div className="w-9 h-9 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
@@ -86,7 +86,7 @@ export function Settings() {
       </div>
 
       {/* API Configuration */}
-      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg" style={{ padding: '24px' }}>
         <div className="flex items-center gap-2 mb-5">
           <Globe size={16} className="text-[#3B82F6]" />
           <h3 className="text-sm font-mono font-semibold text-[#E2E8F0]">API Configuration</h3>
@@ -99,7 +99,7 @@ export function Settings() {
       </div>
 
       {/* Display Preferences */}
-      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg" style={{ padding: '24px' }}>
         <div className="flex items-center gap-2 mb-5">
           <Moon size={16} className="text-[#FBBF24]" />
           <h3 className="text-sm font-mono font-semibold text-[#E2E8F0]">Display</h3>
@@ -161,7 +161,7 @@ export function Settings() {
       </div>
 
       {/* Data Management */}
-      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg" style={{ padding: '24px' }}>
         <div className="flex items-center gap-2 mb-5">
           <Database size={16} className="text-[#3B82F6]" />
           <h3 className="text-sm font-mono font-semibold text-[#E2E8F0]">Data Management</h3>
@@ -190,7 +190,7 @@ export function Settings() {
       </div>
 
       {/* Bot Info */}
-      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg" style={{ padding: '24px' }}>
         <div className="flex items-center gap-2 mb-5">
           <Server size={16} className="text-[#00FF85]" />
           <h3 className="text-sm font-mono font-semibold text-[#E2E8F0]">Bot Info</h3>

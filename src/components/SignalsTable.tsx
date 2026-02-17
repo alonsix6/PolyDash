@@ -9,7 +9,7 @@ interface SignalsTableProps {
 export function SignalsTable({ signals, loading }: SignalsTableProps) {
   if (loading) {
     return (
-      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg" style={{ padding: '24px' }}>
         <div className="flex items-center gap-2.5 mb-5">
           <div className="w-8 h-8 bg-[#1E1E2E] rounded-lg" />
           <div className="h-5 bg-[#1E1E2E] rounded w-32" />
@@ -25,7 +25,7 @@ export function SignalsTable({ signals, loading }: SignalsTableProps) {
 
   if (!signals || signals.length === 0) {
     return (
-      <div className="glass-card border border-[#1E1E2E] rounded-lg p-6">
+      <div className="glass-card border border-[#1E1E2E] rounded-lg" style={{ padding: '24px' }}>
         <div className="flex items-center gap-2.5 mb-5">
           <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
             <Radio size={16} className="text-[#3B82F6]" />
@@ -53,7 +53,7 @@ export function SignalsTable({ signals, loading }: SignalsTableProps) {
   const displaySignals = signals.slice(-20).reverse();
 
   return (
-    <div className="glass-card border border-[#1E1E2E] rounded-lg p-6 flex flex-col">
+    <div className="glass-card border border-[#1E1E2E] rounded-lg flex flex-col" style={{ padding: '24px' }}>
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-5">
         <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
