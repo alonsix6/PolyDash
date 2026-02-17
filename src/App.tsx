@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Header } from './components/Header';
 import { Overview } from './pages/Overview';
+import { Signals } from './pages/Signals';
+import { Wallets } from './pages/Wallets';
+import { Settings } from './pages/Settings';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('overview');
@@ -10,23 +13,11 @@ function App() {
       case 'overview':
         return <Overview />;
       case 'signals':
-        return (
-          <div className="text-center text-gray-500 py-20">
-            Signals page - Coming soon
-          </div>
-        );
+        return <Signals />;
       case 'wallets':
-        return (
-          <div className="text-center text-gray-500 py-20">
-            Wallets page - Coming soon
-          </div>
-        );
+        return <Wallets />;
       case 'settings':
-        return (
-          <div className="text-center text-gray-500 py-20">
-            Settings page - Coming soon
-          </div>
-        );
+        return <Settings />;
       default:
         return <Overview />;
     }
@@ -35,7 +26,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
       <Header currentPage={currentPage} onNavigate={setCurrentPage} />
-      <main className="pt-20 pb-8 px-4 max-w-7xl mx-auto">
+      <main className="pt-18 pb-8 px-4 max-w-[1440px] mx-auto">
         {renderPage()}
       </main>
     </div>

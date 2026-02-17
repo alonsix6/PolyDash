@@ -1,0 +1,263 @@
+import { useState, useEffect, useCallback } from 'react';
+import { ArrowUp, ArrowDown, Clock, Radio, TrendingUp, TrendingDown, Zap, Award, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import { api } from '../lib/api';
+import type { Signal, SignalStats } from '../lib/types';
+
+const PAGE_SIZE = 20;
+
+export function Signals() {
+  const [signals, setSignals] = useState<Signal[]>([]);
+  const [stats, setStats] = useState<SignalStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(0);
+  const [directionFilter, setDirectionFilter] = useState<'ALL' | 'UP' | 'DOWN'>('ALL');
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params: { limit: number; offset: number; direction?: string } = {
+        limit: PAGE_SIZE,
+        offset: page * PAGE_SIZE,
+      };
+      if (directionFilter !== 'ALL') {
+        params.direction = directionFilter;
+      }
+
+      const [signalsRes, statsData] = await Promise.all([
+        api.getSignals(params),
+        api.getSignalStats(),
+      ]);
+
+      setSignals(signalsRes.data);
+      setTotal(signalsRes.total);
+      setStats(statsData);
+    } catch (e) {
+      console.error('Failed to fetch signals:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, directionFilter]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  const formatTime = (timestamp: string) => {
+    return new Date(timestamp).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard
+          title="Win Rate UP"
+          value={stats ? `${stats.win_rate_up.toFixed(1)}%` : '--'}
+          icon={TrendingUp}
+          iconColor="#00FF85"
+        />
+        <StatCard
+          title="Win Rate DOWN"
+          value={stats ? `${stats.win_rate_down.toFixed(1)}%` : '--'}
+          icon={TrendingDown}
+          iconColor="#FF3B3B"
+        />
+        <StatCard
+          title="Avg Score"
+          value={stats ? `$${stats.avg_pnl.toFixed(2)}` : '--'}
+          icon={Zap}
+          iconColor="#3B82F6"
+        />
+        <StatCard
+          title="Best Streak"
+          value={stats ? `${stats.best_streak}` : '--'}
+          subtitle={stats ? `worst: ${stats.worst_streak}` : undefined}
+          icon={Award}
+          iconColor="#FBBF24"
+        />
+      </div>
+
+      {/* Table Card */}
+      <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-5">
+        {/* Header + Filters */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
+              <Radio size={16} className="text-[#3B82F6]" />
+            </div>
+            <h3 className="text-sm font-mono font-semibold text-[#E2E8F0]">All Signals</h3>
+            <span className="text-xs text-[#64748B] font-mono">{total} total</span>
+          </div>
+
+          {/* Direction Filter */}
+          <div className="flex items-center gap-1">
+            <Filter size={14} className="text-[#64748B] mr-1" />
+            {(['ALL', 'UP', 'DOWN'] as const).map((dir) => (
+              <button
+                key={dir}
+                onClick={() => { setPage(0); setDirectionFilter(dir); }}
+                className={`px-2.5 py-1 text-xs font-mono rounded-md transition-colors ${
+                  directionFilter === dir
+                    ? dir === 'UP' ? 'bg-[#00FF85]/10 text-[#00FF85]'
+                      : dir === 'DOWN' ? 'bg-[#FF3B3B]/10 text-[#FF3B3B]'
+                      : 'bg-[#1E1E2E] text-[#E2E8F0]'
+                    : 'text-[#64748B] hover:text-[#E2E8F0] hover:bg-[#1E1E2E]/50'
+                }`}
+              >
+                {dir}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[700px]">
+            <thead>
+              <tr className="text-left text-[10px] text-[#64748B] uppercase tracking-wider border-b border-[#1E1E2E]">
+                <th className="pb-2.5 pl-2 font-medium">Time</th>
+                <th className="pb-2.5 font-medium">Direction</th>
+                <th className="pb-2.5 font-medium">Score</th>
+                <th className="pb-2.5 font-medium">Confidence</th>
+                <th className="pb-2.5 font-medium">BTC Price</th>
+                <th className="pb-2.5 font-medium">Delta</th>
+                <th className="pb-2.5 font-medium">ROI</th>
+                <th className="pb-2.5 pr-2 font-medium text-right">PnL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                [...Array(PAGE_SIZE)].map((_, i) => (
+                  <tr key={i}>
+                    <td colSpan={8} className="py-2.5">
+                      <div className="h-8 bg-[#1E1E2E]/50 rounded animate-pulse" />
+                    </td>
+                  </tr>
+                ))
+              ) : signals.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-[#64748B] font-mono text-sm">
+                    No signals found
+                  </td>
+                </tr>
+              ) : (
+                signals.map((signal, idx) => {
+                  const pnl = signal.pnl_theoretical?.net_profit ?? 0;
+                  const won = signal.pnl_theoretical?.won ?? false;
+                  const roi = signal.pnl_theoretical?.roi_pct ?? 0;
+
+                  return (
+                    <tr
+                      key={idx}
+                      className="table-row-stripe border-b border-[#1E1E2E]/30 hover:bg-[#1E1E2E]/40 transition-colors duration-100"
+                    >
+                      <td className="py-2.5 pl-2 font-mono text-xs text-[#64748B]">
+                        <div className="flex items-center gap-1.5">
+                          <Clock size={10} className="shrink-0" />
+                          {formatTime(signal.timestamp)}
+                        </div>
+                      </td>
+                      <td className="py-2.5">
+                        <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-bold ${
+                          signal.direction === 'UP'
+                            ? 'bg-[#00FF85]/10 text-[#00FF85]'
+                            : 'bg-[#FF3B3B]/10 text-[#FF3B3B]'
+                        }`}>
+                          {signal.direction === 'UP' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
+                          {signal.direction}
+                        </div>
+                      </td>
+                      <td className="py-2.5 font-mono text-xs text-[#E2E8F0]">
+                        {signal.score.toFixed(3)}
+                      </td>
+                      <td className="py-2.5 font-mono text-xs text-[#E2E8F0]">
+                        {(signal.confidence * 100).toFixed(0)}%
+                      </td>
+                      <td className="py-2.5 font-mono text-xs text-[#E2E8F0]">
+                        ${signal.btc_price?.toLocaleString() ?? '--'}
+                      </td>
+                      <td className="py-2.5 font-mono text-xs">
+                        <span className={signal.delta_pct >= 0 ? 'text-[#00FF85]' : 'text-[#FF3B3B]'}>
+                          {signal.delta_pct >= 0 ? '+' : ''}{signal.delta_pct.toFixed(2)}%
+                        </span>
+                      </td>
+                      <td className="py-2.5 font-mono text-xs">
+                        <span className={roi >= 0 ? 'text-[#00FF85]' : 'text-[#FF3B3B]'}>
+                          {roi >= 0 ? '+' : ''}{roi.toFixed(2)}%
+                        </span>
+                      </td>
+                      <td className="py-2.5 pr-2 text-right">
+                        <span className={`font-mono text-xs font-bold ${
+                          won ? 'text-[#00FF85]' : 'text-[#FF3B3B]'
+                        }`}>
+                          {won ? '+' : ''}{pnl !== 0 ? `$${pnl.toFixed(2)}` : '$0.00'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#1E1E2E]">
+            <span className="text-xs text-[#64748B] font-mono">
+              Page {page + 1} of {totalPages}
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage(Math.max(0, page - 1))}
+                disabled={page === 0}
+                className="p-1.5 rounded-md text-[#64748B] hover:text-[#E2E8F0] hover:bg-[#1E1E2E]/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                disabled={page >= totalPages - 1}
+                className="p-1.5 rounded-md text-[#64748B] hover:text-[#E2E8F0] hover:bg-[#1E1E2E]/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ title, value, subtitle, icon: Icon, iconColor }: {
+  title: string;
+  value: string;
+  subtitle?: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  iconColor: string;
+}) {
+  return (
+    <div className="bg-[#111116] border border-[#1E1E2E] rounded-xl p-4 relative overflow-hidden hover:border-[#2a2a3e] transition-colors duration-200">
+      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${iconColor}40, transparent)` }} />
+      <div className="flex items-start justify-between mb-2">
+        <span className="text-[10px] font-medium text-[#64748B] uppercase tracking-wider">{title}</span>
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${iconColor}10`, color: iconColor }}>
+          <Icon size={14} />
+        </div>
+      </div>
+      <div className="text-xl font-mono font-bold text-[#E2E8F0]">{value}</div>
+      {subtitle && <div className="text-[10px] text-[#64748B] mt-1 font-mono">{subtitle}</div>}
+    </div>
+  );
+}

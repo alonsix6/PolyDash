@@ -3,6 +3,7 @@ import { api } from '../lib/api';
 import { KPIGrid } from '../components/KPIGrid';
 import { PnLChart } from '../components/PnLChart';
 import { SignalsTable } from '../components/SignalsTable';
+import { WalletConsensus } from '../components/WalletConsensus';
 import type { KPIs, Signal, ChartPoint } from '../lib/types';
 
 export function Overview() {
@@ -35,10 +36,22 @@ export function Overview() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* KPI Cards Row */}
       <KPIGrid data={kpis} loading={loading} />
+
+      {/* PnL Chart - Full Width */}
       <PnLChart data={chartData} loading={loading} />
-      <SignalsTable signals={signals} loading={loading} />
+
+      {/* Two Column: Signals (60%) + Wallet Consensus (40%) */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-3">
+          <SignalsTable signals={signals} loading={loading} />
+        </div>
+        <div className="lg:col-span-2">
+          <WalletConsensus />
+        </div>
+      </div>
     </div>
   );
 }
